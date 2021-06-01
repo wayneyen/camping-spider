@@ -1,0 +1,14 @@
+{
+  "name": "camping-spider",
+  "version": "1.0.0",
+  "description": "全台露營區網路爬蟲",
+  "main": "index.js",
+  "repository": "https://github.com/wayneyen/camping-spider",
+  "author": "Wayne Yen <wayway1974@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.9",
+    "mysql": "^2.18.1",
+    "puppeteer": "^10.0.0"
+  }
+}
