@@ -1,17 +1,11 @@
 const puppeteer = require('puppeteer');
 const cheerio = require('cheerio');
-const mysql = require('mysql');
+const conn = require('./models/Database').conn();
 
 (async () => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
-  let conn = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : '1234',
-    database : 'campingprice'
-  });
   conn.connect();
 
   await page.goto('https://gis.tbroc.gov.tw/TTE/index.jsp');
@@ -38,7 +32,6 @@ const mysql = require('mysql');
         conn.query(sql, [[name, city, land, usage, business, legal, illegal, indigenous]], function (err, result) {
           if (err) throw err;
           console.log(name);
-          console.log("Number of records inserted: " + result.affectedRows);
         });
       }
     });
