@@ -26,10 +26,10 @@ const conn = require("./models/Database").conn()
         const link4 = $("div.g").eq(3).find("a").first().attr("href")
         const link5 = $("div.g").eq(4).find("a").first().attr("href")
         const link6 = $("div.g").eq(5).find("a").first().attr("href")
-        const link = `${link1},${link2},${link3},${link4},${link5},${link6}`
+        const links = `${link1},${link2},${link3},${link4},${link5},${link6}`
 
         if (link1 != undefined) {
-          const sql = `UPDATE campsites SET link = '${link}' WHERE id = ${id}`
+          const sql = `UPDATE campsites SET links = '${links}' WHERE id = ${id}`
           console.log(id)
           conn.query(sql, [], function (err, results, fields) {
             if (err) throw err
