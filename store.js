@@ -8,7 +8,7 @@ const conn = require("./models/Database").conn()
   const page = await browser.newPage()
 
   conn.query(
-    "SELECT * FROM `campsites` WHERE `stores` IS NULL LIMIT 500",
+    "SELECT * FROM `campsites` WHERE id > 1963 AND `website` IS NULL AND `address` IS NULL AND `tel` IS NULL LIMIT 500",
     async function (err, results, fields) {
       if (err) throw err
 
@@ -20,21 +20,44 @@ const conn = require("./models/Database").conn()
         const body = await page.content()
         const $ = await cheerio.load(body)
 
-        const stores = $("div#rhs").first().html()
+        const stores = $("div.kp-hc").first()
+        const contents = $("div.wp-ms").first()
 
-        if (body != undefined) {
-          if (stores) {
-            const sql = `UPDATE campsites SET stores = '${btoa(stores)}' WHERE id = ${id}`
-            console.log(id)
-            conn.query(sql, [], function (err, results, fields) {
-              if (err) throw err
-            })
-          } else {
-            const sql = `UPDATE campsites SET stores = 'none' WHERE id = ${id}`
-            console.log(id + ' none')
-            conn.query(sql, [], function (err, results, fields) {
-              if (err) throw err
-            })
+        if ($.text().substring(0, 20) != 'https://www.google.c') {
+          const store = {
+            website: '',
+            address: '',
+            tel: ''
+          }
+
+          stores.find('a').each(function (i, element) {
+            if ($(this).text() == '網站') {
+              store.website = $(this).attr('href');
+            }
+          })
+
+          contents.find('span').each(function (i, element) {
+            if ($(this).text() == '地址： ') {
+              store.address = contents.find('span').eq(i + 1).text()
+            }
+            if ($(this).text() == '電話： ') {
+              store.tel = contents.find('span').eq(i + 1).text()
+            }
+          })
+
+          console.log(id, store)
+
+          if (store.website != '') {
+            const sql = `UPDATE campsites SET website = '${store.website}' WHERE id = ${id}`
+            conn.query(sql)
+          }
+          if (store.address != '') {
+            const sql = `UPDATE campsites SET address = '${store.address}' WHERE id = ${id}`
+            conn.query(sql)
+          }
+          if (store.tel != '') {
+            const sql = `UPDATE campsites SET tel = '${store.tel}' WHERE id = ${id}`
+            conn.query(sql)
           }
         } else {
           break
@@ -44,19 +67,4 @@ const conn = require("./models/Database").conn()
       console.log("Done.")
     }
   )
-
-  // conn.end()
-
-  // const browser = await puppeteer.launch();
-  // const page = await browser.newPage();
-
-  // await page.goto('https://www.google.com.tw/search?q=三富休閒農場%20訂位');
-  // // await page.waitForSelector('div.g');
-
-  // const body = await page.content()
-  // const $ = await cheerio.load(body)
-
-  // console.log($('div.g').first().find('a').first().attr('href'))
-  // console.log($('div.g').eq(1).find('a').first().attr('href'))
-  // console.log($('div.g').eq(2).find('a').first().attr('href'))
 })()
